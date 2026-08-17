@@ -69,19 +69,18 @@ alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 
 ### Ports
 
-Host ports 80, 3306, and 6379 were already taken on this machine — by Herd's
-nginx, the `url_shortener-db` container, and the `wallet-redis` container
-respectively. This stack publishes on different host ports so everything
-coexists and **Herd keeps serving your other sites normally**.
+Several default ports were already taken on this machine. This stack publishes
+on free host ports so everything coexists and **Herd keeps serving your other
+sites normally**.
 
-| Service | URL / host port | In-container |
-|---|---|---|
-| App | http://localhost:8080 | 80 |
-| Vite dev server | 5173 | 5173 |
-| MySQL | 3307 | `mysql:3306` |
-| Redis | 6380 | `redis:6379` |
-| Mailpit UI | http://localhost:8025 | 8025 |
-| Mailpit SMTP | 1025 | 1025 |
+| Service | URL / host port | In-container | Why not the default |
+|---|---|---|---|
+| App | http://localhost:8080 | 80 | 80 is Herd's nginx |
+| Vite dev server | 5173 | 5173 | — |
+| MySQL | 3310 | `mysql:3306` | 3306 is the `url_shortener-db` container; 3307 is a native `mysqld` (Laragon/Herd) |
+| Redis | 6380 | `redis:6379` | 6379 is the `wallet-redis` container |
+| Mailpit UI | http://localhost:8025 | 8025 | — |
+| Mailpit SMTP | 1025 | 1025 | — |
 
 The `FORWARD_*` variables in `.env` control only what is published to the host.
 Inside the Docker network the app still reaches `mysql:3306` and `redis:6379`,
