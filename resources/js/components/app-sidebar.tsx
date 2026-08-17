@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { BookOpen, FolderGit2, LayoutGrid, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
+import { WorkspaceSwitcher } from '@/components/workspace-switcher';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -16,13 +17,31 @@ import {
 import { dashboard } from '@/routes';
 import type { NavItem } from '@/types';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-];
+/**
+ * Navigation depends on whether a workspace is currently resolved. Members
+ * links only exist inside the /w/{workspace} tenant boundary.
+ */
+function useWorkspaceNav(): NavItem[] {
+    const { currentWorkspace } = usePage().props;
+
+    const items: NavItem[] = [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+    ];
+
+    if (currentWorkspace) {
+        items.push({
+            title: 'Members',
+            href: `/w/${currentWorkspace.slug}/members`,
+            icon: Users,
+        });
+    }
+
+    return items;
+}
 
 const footerNavItems: NavItem[] = [
     {
@@ -50,10 +69,11 @@ export function AppSidebar() {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
+                <WorkspaceSwitcher />
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={useWorkspaceNav()} />
             </SidebarContent>
 
             <SidebarFooter>

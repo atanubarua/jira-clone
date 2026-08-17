@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('passkeys', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            // users.id is a ULID (SPEC A-5), so the FK must match.
+            $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
             $table->string('name');
             $table->string('credential_id')->unique();
             $table->json('credential');

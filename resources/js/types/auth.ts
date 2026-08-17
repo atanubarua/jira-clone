@@ -1,5 +1,6 @@
 export type User = {
-    id: number;
+    /** ULID (SPEC A-5), not an auto-increment integer. */
+    id: string;
     name: string;
     email: string;
     avatar?: string;

@@ -15,6 +15,9 @@ createInertiaApp({
             case name === 'welcome':
                 return null;
             case name.startsWith('auth/'):
+            // Invitation redemption is reachable while logged out, so it uses
+            // the auth shell rather than the app sidebar.
+            case name.startsWith('invitations/'):
                 return AuthLayout;
             case name.startsWith('settings/'):
                 return [AppLayout, SettingsLayout];

@@ -3,7 +3,11 @@
 Derived from [SPEC.md](SPEC.md). Phases are ordered so the application is
 runnable and demoable as early as possible, and stays that way.
 
-**Status:** Phase 0 complete (scaffold pushed). Phase 1 not started.
+**Status:** Phases 0 and 1 complete. Phase 2 (Projects & Membership) is next.
+
+Phase 1 shipped 107 passing tests (298 assertions), Larastan level 7 clean,
+Pint clean, `tsc --noEmit` clean, and a full `migrate:fresh --seed` /
+`migrate:rollback` cycle verified from an empty database.
 
 ---
 
@@ -54,7 +58,7 @@ Already delivered and pushed. Recorded here for provenance.
 
 ---
 
-## Phase 1 — Tenancy, Identity, Access & the Isolation Harness
+## Phase 1 — Tenancy, Identity, Access & the Isolation Harness ✅ COMPLETE
 
 **SPEC Module 1.** The security foundation. Everything in every later phase
 scopes against what is built here, so it is built first and completely —
@@ -70,82 +74,82 @@ workspaces → a non-member gets a 404, not a 403.
 SPEC A-5 requires ULIDs on all primary keys; the starter kit ships
 `$table->id()`. Do this before any table references `users`.
 
-- [ ] `users.id` is `ulid` primary key; `User` uses `HasUlids`
-- [ ] `sessions.user_id` and the passkeys table's user FK converted to `ulid`
-- [ ] Two-factor columns migration still applies cleanly
-- [ ] Migrations edited **in place** (no production data exists yet) rather
+- [x] `users.id` is `ulid` primary key; `User` uses `HasUlids`
+- [x] `sessions.user_id` and the passkeys table's user FK converted to `ulid`
+- [x] Two-factor columns migration still applies cleanly
+- [x] Migrations edited **in place** (no production data exists yet) rather
       than layered with alter-migrations
-- [ ] `migrate:fresh` succeeds; existing 39 starter-kit tests still pass
-- [ ] `UserFactory` produces ULID keys
+- [x] `migrate:fresh` succeeds; existing 39 starter-kit tests still pass
+- [x] `UserFactory` produces ULID keys
 
 #### 1.2 — Establish the ULID + timestamp conventions
-- [ ] A documented base convention exists for new models (ULID PK, `timestamps`,
+- [x] A documented base convention exists for new models (ULID PK, `timestamps`,
       `softDeletes` where SPEC says so)
-- [ ] An architecture test asserts every model under `App\Models` uses
+- [x] An architecture test asserts every model under `App\Models` uses
       `HasUlids`
 
 ### 1B. Tenancy backend
 
 #### 1.3 — `workspaces` table and model
-- [ ] Fields per SPEC: `id`, `name`, `slug` (globally unique), `owner_id`,
+- [x] Fields per SPEC: `id`, `name`, `slug` (globally unique), `owner_id`,
       `logo_path`, timestamps, `deleted_at`
-- [ ] Slug is URL-safe, lowercase, immutable after creation
-- [ ] `Workspace::owner()` relation
+- [x] Slug is URL-safe, lowercase, immutable after creation
+- [x] `Workspace::owner()` relation
 
 #### 1.4 — `workspace_members` table and model
-- [ ] Fields per SPEC: `workspace_id`, `user_id`, `role` enum
+- [x] Fields per SPEC: `workspace_id`, `user_id`, `role` enum
       (`owner`/`admin`/`member`/`guest`), `status` enum
       (`active`/`deactivated`), `joined_at`
-- [ ] Unique on (`workspace_id`, `user_id`)
-- [ ] `User::workspaces()` and `Workspace::members()` many-to-many
+- [x] Unique on (`workspace_id`, `user_id`)
+- [x] `User::workspaces()` and `Workspace::members()` many-to-many
 
 #### 1.5 — Tenant resolution middleware
-- [ ] `workspace_id` is resolved **only** from the `/w/{slug}` route segment —
+- [x] `workspace_id` is resolved **only** from the `/w/{slug}` route segment —
       never from a request body, header, or query parameter
-- [ ] Resolved workspace is bound into the container for the request lifetime
-- [ ] Authenticated non-member of an existing workspace receives **404**
-- [ ] Unauthenticated request redirects to login
-- [ ] Test: a request body containing `workspace_id` for another tenant is
+- [x] Resolved workspace is bound into the container for the request lifetime
+- [x] Authenticated non-member of an existing workspace receives **404**
+- [x] Unauthenticated request redirects to login
+- [x] Test: a request body containing `workspace_id` for another tenant is
       ignored entirely
 
 #### 1.6 — `BelongsToWorkspace` global scope trait
-- [ ] Applies a global scope filtering by the resolved workspace
-- [ ] Auto-fills `workspace_id` on create
-- [ ] Throws (loudly) if used with no tenant bound — no silent unscoped query
-- [ ] Queue jobs and console commands must set the tenant explicitly; there is
+- [x] Applies a global scope filtering by the resolved workspace
+- [x] Auto-fills `workspace_id` on create
+- [x] Throws (loudly) if used with no tenant bound — no silent unscoped query
+- [x] Queue jobs and console commands must set the tenant explicitly; there is
       no ambient default
-- [ ] Test: same query returns different rows under two different tenants
+- [x] Test: same query returns different rows under two different tenants
 
 #### 1.7 — Workspace creation on registration
-- [ ] Registering creates a workspace and makes the registrant its `owner`
-- [ ] Happens in one transaction; a failure leaves no orphan user or workspace
-- [ ] `last_workspace_id` set so login lands somewhere sensible
-- [ ] Test: no user can exist without at least one workspace
+- [x] Registering creates a workspace and makes the registrant its `owner`
+- [x] Happens in one transaction; a failure leaves no orphan user or workspace
+- [x] `last_workspace_id` set so login lands somewhere sensible
+- [x] Test: no user can exist without at least one workspace
 
 #### 1.8 — Ownership rules
-- [ ] Exactly one `owner` per workspace, enforced at the model/service layer
-- [ ] Ownership transfer demotes the previous owner to `admin` in the same
+- [x] Exactly one `owner` per workspace, enforced at the model/service layer
+- [x] Ownership transfer demotes the previous owner to `admin` in the same
       transaction
-- [ ] The owner cannot be removed or deactivated — transfer is required first
-- [ ] Tests cover all three rules
+- [x] The owner cannot be removed or deactivated — transfer is required first
+- [x] Tests cover all three rules
 
 #### 1.9 — Invitations
-- [ ] `invitations` table per SPEC: `email`, `role` (never `owner`), `token`,
+- [x] `invitations` table per SPEC: `email`, `role` (never `owner`), `token`,
       `invited_by_id`, `expires_at` (14 days), `accepted_at`
-- [ ] Token is **hashed at rest**, single-use, compared in constant time
-- [ ] Partial-unique behaviour: one live invitation per email per workspace
-- [ ] Accepting for an unknown email creates the user in the same transaction
-- [ ] Accepting for an existing user just adds the membership
-- [ ] Expired and already-accepted tokens are rejected with a clear error
-- [ ] Tests cover: happy path (new user), happy path (existing user), expired,
+- [x] Token is **hashed at rest**, single-use, compared in constant time
+- [x] Partial-unique behaviour: one live invitation per email per workspace
+- [x] Accepting for an unknown email creates the user in the same transaction
+- [x] Accepting for an existing user just adds the membership
+- [x] Expired and already-accepted tokens are rejected with a clear error
+- [x] Tests cover: happy path (new user), happy path (existing user), expired,
       reused, wrong workspace
 
 #### 1.10 — Member deactivation
-- [ ] Deactivation preserves authored content and assignments
-- [ ] Deactivated user's sessions are invalidated
-- [ ] Deactivated user disappears from member/assignee pickers
-- [ ] A user who has authored anything can never be hard-deleted
-- [ ] Tests cover each
+- [x] Deactivation preserves authored content and assignments
+- [x] Deactivated user's sessions are invalidated
+- [x] Deactivated user disappears from member/assignee pickers
+- [x] A user who has authored anything can never be hard-deleted
+- [x] Tests cover each
 
 ### 1C. Authorization
 
@@ -153,15 +157,15 @@ SPEC A-5 requires ULIDs on all primary keys; the starter kit ships
 The workspace-level half of SPEC §4. Project-level roles arrive in Phase 2 and
 must slot into the same structure without rewriting it.
 
-- [ ] `WorkspacePolicy` covering the workspace capability matrix in SPEC §4
-- [ ] Policies are invoked via `#[Authorize]` attributes or explicit
+- [x] `WorkspacePolicy` covering the workspace capability matrix in SPEC §4
+- [x] Policies are invoked via `#[Authorize]` attributes or explicit
       `authorize()` — **never** a hand-rolled `if` in a controller
-- [ ] **404, not 403**, for anything the user may not read; 403 only where the
+- [x] **404, not 403**, for anything the user may not read; 403 only where the
       user can see the object but not perform the action
-- [ ] No policy reads `Auth::user()` directly and assumes full session rights —
+- [x] No policy reads `Auth::user()` directly and assumes full session rights —
       written now to accept token-scoped abilities (SPEC §4 rule 5), so Phase 7
       is additive
-- [ ] A test asserts every capability row in the SPEC §4 workspace matrix, for
+- [x] A test asserts every capability row in the SPEC §4 workspace matrix, for
       all four roles
 
 ### 1D. The isolation test harness ← *the deliverable that protects everything later*
@@ -170,30 +174,30 @@ must slot into the same structure without rewriting it.
 This is a reusable harness, not a one-off test. Every later phase registers its
 routes with it.
 
-- [ ] A helper that, given a route and a role, asserts a user in workspace A
+- [x] A helper that, given a route and a role, asserts a user in workspace A
       gets 404 for workspace B's records
-- [ ] Covers ids supplied in the URL **and** in request bodies
-- [ ] An architecture test asserts every model under `App\Models` (except
+- [x] Covers ids supplied in the URL **and** in request bodies
+- [x] An architecture test asserts every model under `App\Models` (except
       `User` and `Workspace`) uses `BelongsToWorkspace` — a model that forgets
       the trait is a cross-tenant leak and must fail CI
-- [ ] Documented in CLAUDE.md so every new module is added to it
-- [ ] Suite is green
+- [x] Documented in CLAUDE.md so every new module is added to it
+- [x] Suite is green
 
 #### 1.13 — Guard against unscoped queries in tests
-- [ ] Test-time assertion that no query against a tenant-owned table runs
+- [x] Test-time assertion that no query against a tenant-owned table runs
       without a `workspace_id` predicate
-- [ ] Fails loudly rather than warning
+- [x] Fails loudly rather than warning
 
 ### 1E. UI (only after 1.1–1.13 are green)
 
 #### 1.14 — Workspace switcher and member management screens
-- [ ] Workspace switcher in the sidebar; switching is a session context change,
+- [x] Workspace switcher in the sidebar; switching is a session context change,
       not a re-login
-- [ ] Member list showing role and status
-- [ ] Invite form; pending invitations list with revoke
-- [ ] Accept-invitation page (works for both logged-in and new users)
-- [ ] UI hides what the user cannot do — **cosmetic only**, never the enforcement
-- [ ] Routes registered with the isolation harness (1.12)
+- [x] Member list showing role and status
+- [x] Invite form; pending invitations list with revoke
+- [x] Accept-invitation page (works for both logged-in and new users)
+- [x] UI hides what the user cannot do — **cosmetic only**, never the enforcement
+- [x] Routes registered with the isolation harness (1.12)
 
 ---
 

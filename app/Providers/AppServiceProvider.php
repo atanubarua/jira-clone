@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -15,7 +16,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Request-scoped tenant. Deliberately has no ambient default: queue
+        // jobs, console commands and tests must bind a workspace explicitly
+        // via TenantContext::runFor().
+        $this->app->singleton(TenantContext::class);
     }
 
     /**

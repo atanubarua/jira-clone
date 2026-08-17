@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Workspace;
+use App\Tenancy\TenantContext;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,11 +37,34 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $current = app(TenantContext::class)->current();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
+            ],
+            // Drives the workspace switcher. Only workspaces where the user is
+            // an ACTIVE member appear, so a deactivated membership disappears
+            // from the switcher on their very next request.
+            'workspaces' => fn (): array => $user === null ? [] : $user->activeWorkspaces()
+                ->get(['workspaces.id', 'workspaces.name', 'workspaces.slug'])
+                ->map(fn (Workspace $workspace): array => [
+                    'id' => $workspace->id,
+                    'name' => $workspace->name,
+                    'slug' => $workspace->slug,
+                ])->all(),
+            'currentWorkspace' => $current instanceof Workspace ? [
+                'id' => $current->id,
+                'name' => $current->name,
+                'slug' => $current->slug,
+                'role' => $user?->roleIn($current)?->value,
+            ] : null,
+            'flash' => [
+                'status' => fn () => $request->session()->get('status'),
+                'invitationUrl' => fn () => $request->session()->get('invitationUrl'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
