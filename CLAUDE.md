@@ -27,9 +27,9 @@ can confirm neither tenant can see the other.
 
 ## Environment — read this before running anything
 
-**The project lives inside WSL2 at `~/projects/jira-clone`, on the Linux
-filesystem.** It is not on `D:\`. Code on NTFS would cross the Windows↔WSL
-filesystem bridge and make PHP page loads 20–60× slower.
+**On Windows, work from inside WSL2 on the Linux filesystem**, not from an
+NTFS drive. Code on NTFS crosses the Windows↔WSL filesystem bridge and makes
+PHP page loads 20–60× slower.
 
 **Run everything through Sail.** The host WSL `npm` and `composer` on `PATH`
 resolve to the *Windows* binaries via `/mnt/c`:
@@ -45,12 +45,12 @@ resolve to the *Windows* binaries via `/mnt/c`:
 ./vendor/bin/sail up -d
 ```
 
-Docker Desktop 4.45 on this machine intermittently fails to start with
+Docker Desktop 4.45 on Windows can intermittently fail to start with
 `initializing Inference manager: … dockerInference: The file cannot be accessed
 by the system`. Fix: stop Docker, rename `%LOCALAPPDATA%\Docker\run` to
 anything else, restart Docker. It recreates the directory clean.
 
-### Ports (non-default — several defaults were already taken)
+### Ports (deliberately non-default, to avoid local collisions)
 
 | Service | Host | In-container |
 |---|---|---|

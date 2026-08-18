@@ -825,9 +825,8 @@ expensive later — please read this section even if you skim the rest.
   non-enumerable ids in a multi-tenant URL space, and no cross-tenant id
   collision guessing. Cost: 26-char keys, slightly larger indexes.
 - **A-6 — Docker Compose for local dev only.** Production topology is out of
-  scope here. Note the working directory is `D:\herd\jira-clone` — a Laravel
-  Herd path — so I assume Herd-or-Docker locally, and Compose is not the only
-  supported path.
+  scope here. Compose is not assumed to be the only supported local path — a
+  native PHP setup remains viable.
 - **A-7 — Redis is used for queues, cache, and sessions.** You specified
   queues; I extended it. Say so if you want sessions in the database.
 - **A-8 — Horizon for queue supervision.** Redis queues without a dashboard

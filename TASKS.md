@@ -49,7 +49,7 @@ Already delivered and pushed. Recorded here for provenance.
 - [x] **0.1** Laravel 13.25 + Inertia 3.3.1 + React 19.2 + TS 5.7 (strict) +
       Tailwind 4 + shadcn/ui, from `laravel/react-starter-kit:dev-main`
 - [x] **0.2** Sail stack: PHP 8.4, MySQL 8.4 LTS, Redis, Mailpit; host ports
-      remapped (8080 / 3310 / 6380) around Herd and existing containers
+      remapped (8080 / 3310 / 6380) to avoid collisions with other local services
 - [x] **0.3** Redis wired for cache, queues and sessions
 - [x] **0.4** Pest 4.7, Pint, Larastan (level 7), `tsc --noEmit`
 - [x] **0.5** Test suite targets MySQL, not SQLite — SPEC depends on

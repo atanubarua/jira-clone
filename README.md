@@ -31,23 +31,26 @@ targets Laravel `^13.17`.
 
 ## Where this project lives
 
-**Inside WSL2**, at `~/projects/jira-clone` on the Linux filesystem — *not* on
-`D:\`.
+On macOS and Linux, clone wherever you like.
 
-This is deliberate. Docker on Windows runs containers inside WSL2, so
-bind-mounting code from an NTFS drive crosses the Windows↔WSL filesystem
-bridge. PHP reads thousands of small files per request, and that bridge turns
-~50 ms page loads into 1–3 s. Keeping the code on ext4 avoids the penalty
-entirely.
+**On Windows, clone into the WSL2 filesystem** (for example
+`~/projects/jira-clone` inside your distro) rather than onto an NTFS drive such
+as `C:` or `D:`.
 
-Open it from Windows via `\\wsl.localhost\Ubuntu\home\atanu\projects\jira-clone`,
-or from your editor's WSL remote mode (preferred — much faster indexing).
+Docker on Windows runs containers inside WSL2, so bind-mounting code from NTFS
+crosses the Windows↔WSL filesystem bridge. PHP reads thousands of small files
+per request, and that bridge can turn ~50 ms page loads into 1–3 s. Keeping the
+code on ext4 avoids the penalty entirely.
+
+A WSL checkout is browsable from Windows at
+`\\wsl.localhost\<distro>\home\<user>\...`, but your editor's WSL remote mode
+is preferred — indexing is much faster.
 
 ---
 
 ## Running it
 
-All commands run from `~/projects/jira-clone` inside WSL.
+All commands run from the project root (inside WSL on Windows).
 
 Start the stack:
 
@@ -69,25 +72,25 @@ alias sail='sh $([ -f sail ] && echo sail || echo vendor/bin/sail)'
 
 ### Ports
 
-Several default ports were already taken on this machine. This stack publishes
-on free host ports so everything coexists and **Herd keeps serving your other
-sites normally**.
+This stack deliberately publishes on non-default host ports so it can run
+alongside another local web server or database without colliding.
 
-| Service | URL / host port | In-container | Why not the default |
-|---|---|---|---|
-| App | http://localhost:8080 | 80 | 80 is Herd's nginx |
-| Vite dev server | 5173 | 5173 | — |
-| MySQL | 3310 | `mysql:3306` | 3306 is the `url_shortener-db` container; 3307 is a native `mysqld` (Laragon/Herd) |
-| Redis | 6380 | `redis:6379` | 6379 is the `wallet-redis` container |
-| Mailpit UI | http://localhost:8025 | 8025 | — |
-| Mailpit SMTP | 1025 | 1025 | — |
+| Service | URL / host port | In-container |
+|---|---|---|
+| App | http://localhost:8080 | 80 |
+| Vite dev server | 5173 | 5173 |
+| MySQL | 3310 | `mysql:3306` |
+| Redis | 6380 | `redis:6379` |
+| Mailpit UI | http://localhost:8025 | 8025 |
+| Mailpit SMTP | 1025 | 1025 |
 
-The `FORWARD_*` variables in `.env` control only what is published to the host.
-Inside the Docker network the app still reaches `mysql:3306` and `redis:6379`,
-so `DB_PORT` and `REDIS_PORT` stay at their defaults.
+The `FORWARD_*` variables in `.env` control only what is published to the host,
+so change them freely if these clash on your machine. Inside the Docker network
+the app still reaches `mysql:3306` and `redis:6379`, so `DB_PORT` and
+`REDIS_PORT` stay at their defaults.
 
 To connect a GUI client (TablePlus, etc.) to the database, use
-`127.0.0.1:3307`, user `sail`, password `password`, database `jira_clone`.
+`127.0.0.1:3310`, user `sail`, password `password`, database `jira_clone`.
 
 ---
 
@@ -154,6 +157,10 @@ Testing those on SQLite would pass while proving nothing.
 
 ## Next step
 
-No application code has been written yet — this is the scaffold plus the
-specification. Module 1 in [SPEC.md](SPEC.md) (Tenancy, Identity & Access) is
-the first thing to build; everything else scopes against it.
+Phase 1 (Tenancy, Identity & Access) is complete: workspaces, memberships,
+invitations, the workspace permission model, and a cross-tenant isolation test
+harness. See [TASKS.md](TASKS.md) for the phased plan; Phase 2 (Projects &
+Membership) is next.
+
+Try it locally with `./vendor/bin/sail artisan migrate:fresh --seed`, then log
+in as `test@example.com` / `password`.
