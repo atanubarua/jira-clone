@@ -25,30 +25,23 @@ can confirm neither tenant can see the other.
 
 ---
 
-## Environment — read this before running anything
+## Environment
 
-**On Windows, work from inside WSL2 on the Linux filesystem**, not from an
-NTFS drive. Code on NTFS crosses the Windows↔WSL filesystem bridge and makes
-PHP page loads 20–60× slower.
+Machine-specific setup — local paths, which process holds which default port,
+Docker Desktop quirks — lives in `CLAUDE.local.md`, which is gitignored. Nothing
+below depends on that file, so a fresh clone works without it.
 
-**Run everything through Sail.** The host WSL `npm` and `composer` on `PATH`
-resolve to the *Windows* binaries via `/mnt/c`:
-
-- Windows `npm` cannot set Unix exec bits. Running it here produces a
-  `node_modules/.bin` full of non-executable files and a build that dies with
-  `vite: Permission denied`. If that happens: `rm -rf node_modules` and
-  `sail npm ci`.
-- A native Linux Composer is installed at `/usr/local/bin/composer` and is
-  fine, but `sail composer` is still preferred for parity.
+**Run everything through Sail.** On Windows, work from inside WSL2 on the Linux
+filesystem: code on an NTFS drive crosses the Windows↔WSL bridge and makes PHP
+page loads 20–60× slower.
 
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-Docker Desktop 4.45 on Windows can intermittently fail to start with
-`initializing Inference manager: … dockerInference: The file cannot be accessed
-by the system`. Fix: stop Docker, rename `%LOCALAPPDATA%\Docker\run` to
-anything else, restart Docker. It recreates the directory clean.
+A host `npm` that resolves to the Windows binary (via `/mnt/c`) cannot set Unix
+exec bits, and leaves a `node_modules/.bin` that fails with
+`vite: Permission denied`. If that happens: `rm -rf node_modules && sail npm ci`.
 
 ### Ports (deliberately non-default, to avoid local collisions)
 

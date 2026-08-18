@@ -27,3 +27,6 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+
+# Personal, machine-specific Claude Code instructions (see CLAUDE.md)
+/CLAUDE.local.md
