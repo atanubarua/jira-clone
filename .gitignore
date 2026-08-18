@@ -30,3 +30,14 @@ yarn-error.log
 
 # Personal, machine-specific Claude Code instructions (see CLAUDE.md)
 /CLAUDE.local.md
+
+# Any environment file variant (.env itself is listed above)
+.env.*
+!.env.example
+
+# Keys and credentials
+*.pem
+*.p12
+*.pfx
+id_rsa
+id_ed25519
